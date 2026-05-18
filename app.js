@@ -100,9 +100,9 @@ function drawCenterArt(size) {
   const sx = Math.floor((state.centerArt.naturalWidth - crop) / 2);
   const sy = Math.floor((state.centerArt.naturalHeight - crop) / 2);
 
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(state.centerArt, sx, sy, crop, crop, x, y, CENTER_ART_SIZE, CENTER_ART_SIZE);
   ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(state.centerArt, sx, sy, crop, crop, x, y, CENTER_ART_SIZE, CENTER_ART_SIZE);
 }
 
 function render() {

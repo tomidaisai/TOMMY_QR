@@ -121,13 +121,12 @@ button:hover {
 }
 
 #qrCanvas {
-  width: min(100%, 620px);
+  width: min(100%, 296px);
   aspect-ratio: 1;
   height: auto;
   border-radius: 8px;
   background: #fff;
   box-shadow: 0 16px 40px rgba(24, 38, 62, 0.16);
-  image-rendering: pixelated;
 }
 
 #statusText {
