@@ -1,19 +1,17 @@
+const CENTER_ART_SIZE = 96;
+const QUIET_ZONE_MODULES = 4;
+const MIN_OUTPUT_SIZE = 360;
+const MAX_OUTPUT_SIZE = 960;
+const ART_SRC = "assets/center-art.jpg";
+
 const state = {
-  artImage: null,
-  objectUrl: null,
+  centerArt: new Image(),
+  artReady: false,
 };
 
 const els = {
   url: document.querySelector("#urlInput"),
-  art: document.querySelector("#artInput"),
-  size: document.querySelector("#sizeInput"),
-  pixel: document.querySelector("#pixelInput"),
-  logoSize: document.querySelector("#logoSizeInput"),
-  padding: document.querySelector("#paddingInput"),
-  frame: document.querySelector("#frameInput"),
-  round: document.querySelector("#roundInput"),
   download: document.querySelector("#downloadButton"),
-  reset: document.querySelector("#resetButton"),
   canvas: document.querySelector("#qrCanvas"),
   source: document.querySelector("#qrSource"),
   status: document.querySelector("#statusText"),
@@ -33,170 +31,135 @@ function setStatus(message) {
   els.status.textContent = message;
 }
 
-function roundedRect(context, x, y, width, height, radius) {
-  const r = Math.min(radius, width / 2, height / 2);
-  context.beginPath();
-  context.moveTo(x + r, y);
-  context.arcTo(x + width, y, x + width, y + height, r);
-  context.arcTo(x + width, y + height, x, y + height, r);
-  context.arcTo(x, y + height, x, y, r);
-  context.arcTo(x, y, x + width, y, r);
-  context.closePath();
-}
-
-function drawPixelArt(image, x, y, size, blockSize, rounded) {
-  const buffer = document.createElement("canvas");
-  const bufferCtx = buffer.getContext("2d", { willReadFrequently: true });
-  const sourceSize = Math.max(10, Math.round(size / blockSize));
-
-  buffer.width = sourceSize;
-  buffer.height = sourceSize;
-  bufferCtx.imageSmoothingEnabled = true;
-
-  const crop = Math.min(image.naturalWidth, image.naturalHeight);
-  const sx = (image.naturalWidth - crop) / 2;
-  const sy = (image.naturalHeight - crop) / 2;
-  bufferCtx.drawImage(image, sx, sy, crop, crop, 0, 0, sourceSize, sourceSize);
-
-  ctx.save();
-  if (rounded) {
-    roundedRect(ctx, x, y, size, size, Math.max(8, size * 0.12));
-    ctx.clip();
-  }
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(buffer, x, y, size, size);
-  ctx.restore();
-}
-
-function generateQrElement(text, size) {
+function getQrModel(text) {
   els.source.innerHTML = "";
 
   if (!window.QRCode) {
     throw new Error("QRコードライブラリを読み込めませんでした。ネットワーク接続を確認してください。");
   }
 
-  new QRCode(els.source, {
+  const qr = new QRCode(els.source, {
     text,
-    width: size,
-    height: size,
+    width: 1,
+    height: 1,
     colorDark: "#111827",
     colorLight: "#ffffff",
     correctLevel: QRCode.CorrectLevel.H,
   });
 
-  const qrCanvas = els.source.querySelector("canvas");
-  const qrImage = els.source.querySelector("img");
-  return qrCanvas || qrImage;
+  if (!qr._oQRCode) {
+    throw new Error("QRコードのデータ取得に失敗しました。");
+  }
+
+  return qr._oQRCode;
+}
+
+function getCanvasSize(moduleCount) {
+  const totalModules = moduleCount + QUIET_ZONE_MODULES * 2;
+  const minScale = Math.ceil((CENTER_ART_SIZE + 96) / totalModules);
+  const baseScale = Math.ceil(MIN_OUTPUT_SIZE / totalModules);
+  const scale = Math.max(minScale, baseScale, 1);
+  const size = Math.min(totalModules * scale, MAX_OUTPUT_SIZE);
+
+  return {
+    scale: Math.floor(size / totalModules),
+    size: Math.floor(size / totalModules) * totalModules,
+    totalModules,
+  };
+}
+
+function fillModule(x, y, scale) {
+  ctx.fillRect(
+    (x + QUIET_ZONE_MODULES) * scale,
+    (y + QUIET_ZONE_MODULES) * scale,
+    scale,
+    scale,
+  );
+}
+
+function drawQrModules(qrModel, scale, size) {
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = "#111827";
+
+  for (let row = 0; row < qrModel.moduleCount; row += 1) {
+    for (let col = 0; col < qrModel.moduleCount; col += 1) {
+      if (qrModel.isDark(row, col)) {
+        fillModule(col, row, scale);
+      }
+    }
+  }
+}
+
+function drawCenterArt(size) {
+  if (!state.artReady) {
+    return;
+  }
+
+  const x = Math.floor((size - CENTER_ART_SIZE) / 2);
+  const y = Math.floor((size - CENTER_ART_SIZE) / 2);
+  const crop = Math.min(state.centerArt.naturalWidth, state.centerArt.naturalHeight);
+  const sx = Math.floor((state.centerArt.naturalWidth - crop) / 2);
+  const sy = Math.floor((state.centerArt.naturalHeight - crop) / 2);
+
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(state.centerArt, sx, sy, crop, crop, x, y, CENTER_ART_SIZE, CENTER_ART_SIZE);
+  ctx.imageSmoothingEnabled = true;
 }
 
 function render() {
   const text = els.url.value.trim();
-  const size = Number(els.size.value);
-
-  els.canvas.width = size;
-  els.canvas.height = size;
-  ctx.clearRect(0, 0, size, size);
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, size, size);
 
   if (!text) {
-    setStatus("リンクを入力してください。");
+    ctx.clearRect(0, 0, els.canvas.width, els.canvas.height);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, els.canvas.width, els.canvas.height);
+    setStatus("URLを入力してください。");
     return;
   }
 
   try {
-    const qr = generateQrElement(text, size);
-    ctx.drawImage(qr, 0, 0, size, size);
+    const qrModel = getQrModel(text);
+    const { scale, size } = getCanvasSize(qrModel.moduleCount);
 
-    if (state.artImage) {
-      const logoRatio = Number(els.logoSize.value) / 100;
-      const padding = Number(els.padding.value);
-      const artSize = Math.round(size * logoRatio);
-      const boxSize = artSize + padding * 2;
-      const boxX = Math.round((size - boxSize) / 2);
-      const boxY = Math.round((size - boxSize) / 2);
-      const artX = boxX + padding;
-      const artY = boxY + padding;
-      const radius = els.round.checked ? Math.round(boxSize * 0.12) : 0;
-
-      if (els.frame.checked) {
-        ctx.save();
-        ctx.fillStyle = "#ffffff";
-        roundedRect(ctx, boxX, boxY, boxSize, boxSize, radius);
-        ctx.fill();
-        ctx.restore();
-      }
-
-      drawPixelArt(state.artImage, artX, artY, artSize, Number(els.pixel.value), els.round.checked);
-      setStatus("高補正QRで生成しました。保存前にスマホで読み取り確認してください。");
-    } else {
-      setStatus("イラストを追加すると中央にピクセルアートとして配置されます。");
-    }
+    els.canvas.width = size;
+    els.canvas.height = size;
+    drawQrModules(qrModel, scale, size);
+    drawCenterArt(size);
+    setStatus(`${size}x${size}px / 中央画像 ${CENTER_ART_SIZE}x${CENTER_ART_SIZE}px`);
   } catch (error) {
     setStatus(error.message);
   }
 }
 
-function handleArtUpload(event) {
-  const file = event.target.files?.[0];
+function downloadPng() {
+  const text = els.url.value.trim();
 
-  if (state.objectUrl) {
-    URL.revokeObjectURL(state.objectUrl);
-    state.objectUrl = null;
-  }
-
-  if (!file) {
-    state.artImage = null;
-    render();
+  if (!text) {
+    setStatus("URLを入力してから保存してください。");
     return;
   }
 
-  const image = new Image();
-  state.objectUrl = URL.createObjectURL(file);
-  image.onload = () => {
-    state.artImage = image;
-    render();
-  };
-  image.onerror = () => {
-    state.artImage = null;
-    setStatus("画像を読み込めませんでした。別のファイルを試してください。");
-  };
-  image.src = state.objectUrl;
-}
+  render();
 
-function downloadPng() {
   const link = document.createElement("a");
   link.download = "tommy-qr.png";
   link.href = els.canvas.toDataURL("image/png");
   link.click();
 }
 
-function resetForm() {
-  els.url.value = "https://example.com";
-  els.art.value = "";
-  els.size.value = "640";
-  els.pixel.value = "12";
-  els.logoSize.value = "22";
-  els.padding.value = "12";
-  els.frame.checked = true;
-  els.round.checked = false;
-  state.artImage = null;
-  if (state.objectUrl) {
-    URL.revokeObjectURL(state.objectUrl);
-    state.objectUrl = null;
-  }
+state.centerArt.onload = () => {
+  state.artReady = true;
   render();
-}
+};
 
-const scheduleRender = debounce(render);
+state.centerArt.onerror = () => {
+  state.artReady = false;
+  setStatus("中央画像を読み込めませんでした。assets/center-art.jpg を確認してください。");
+};
 
-[els.url, els.size, els.pixel, els.logoSize, els.padding, els.frame, els.round].forEach((el) => {
-  el.addEventListener("input", scheduleRender);
-  el.addEventListener("change", scheduleRender);
-});
+state.centerArt.src = ART_SRC;
 
-els.art.addEventListener("change", handleArtUpload);
+els.url.addEventListener("input", debounce(render));
 els.download.addEventListener("click", downloadPng);
-els.reset.addEventListener("click", resetForm);
-
 window.addEventListener("load", render);

@@ -10,63 +10,22 @@
     <main class="app-shell">
       <section class="workspace" aria-label="QRコード生成">
         <div class="panel controls-panel">
-          <div class="brand">
-            <p class="eyebrow">TOMMY QR</p>
-            <h1>ピクセルアート入りQRコード</h1>
-          </div>
+          <p class="eyebrow">TOMMY QR</p>
+          <h1>リンクからQRを作る</h1>
 
           <label class="field">
-            <span>リンク</span>
+            <span>URL</span>
             <input id="urlInput" type="url" value="https://example.com" placeholder="https://example.com" autocomplete="url">
           </label>
 
-          <label class="field">
-            <span>イラスト</span>
-            <input id="artInput" type="file" accept="image/*">
-          </label>
-
-          <div class="grid-fields">
-            <label class="field">
-              <span>サイズ</span>
-              <input id="sizeInput" type="range" min="360" max="960" step="40" value="640">
-            </label>
-
-            <label class="field">
-              <span>ドットの粗さ</span>
-              <input id="pixelInput" type="range" min="4" max="28" step="2" value="12">
-            </label>
-
-            <label class="field">
-              <span>イラスト領域</span>
-              <input id="logoSizeInput" type="range" min="14" max="30" step="1" value="22">
-            </label>
-
-            <label class="field">
-              <span>余白</span>
-              <input id="paddingInput" type="range" min="0" max="28" step="2" value="12">
-            </label>
-          </div>
-
-          <div class="switch-row">
-            <label class="check">
-              <input id="frameInput" type="checkbox" checked>
-              <span>中央に白フレームを入れる</span>
-            </label>
-            <label class="check">
-              <input id="roundInput" type="checkbox">
-              <span>角を少し丸める</span>
-            </label>
-          </div>
-
           <div class="actions">
             <button id="downloadButton" type="button">PNG保存</button>
-            <button id="resetButton" type="button" class="secondary">初期化</button>
           </div>
         </div>
 
         <div class="preview-wrap">
-          <canvas id="qrCanvas" width="640" height="640" aria-label="生成されたQRコード"></canvas>
-          <p id="statusText" role="status">リンクを入力すると自動で更新されます。</p>
+          <canvas id="qrCanvas" width="370" height="370" aria-label="生成されたQRコード"></canvas>
+          <p id="statusText" role="status">URLを入力すると自動で更新されます。</p>
         </div>
       </section>
     </main>
