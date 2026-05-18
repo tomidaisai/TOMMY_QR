@@ -2,19 +2,4 @@
 
 URLからQRコードを生成し、中央に固定イラストを96x96pxで重ねる静的Webアプリです。
 
-## 使い方
-
-1. `index.html` をブラウザで開きます。
-2. リンクを入力します。
-3. `PNG保存` で書き出します。
-
-QRコードは高エラー訂正で生成しています。公開前にスマートフォンで読み取り確認してください。
-
-中央画像は `assets/center-art.png` です。96x96ピクセルアートを同じパスに配置してください。
-
-## 構成
-
-- `index.html`: 画面構造
-- `styles.css`: レイアウトと見た目
-- `app.js`: QR生成、中央画像の合成、PNG保存
-- `assets/center-art.png`: 中央に配置する固定画像
+ https://tomidaisai.github.io/TOMMY_QR/
