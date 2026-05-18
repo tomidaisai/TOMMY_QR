@@ -1,4 +1,4 @@
-const CENTER_ART_SIZE = 96;
+const CENTER_ART_SIZE = 128;
 const QUIET_ZONE_MODULES = 4;
 const OUTPUT_SIZE = 296;
 const MAX_OUTPUT_SIZE = 960;
