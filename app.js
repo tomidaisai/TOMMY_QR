@@ -1,7 +1,7 @@
 const CENTER_ART_SIZE = 96;
 const QUIET_ZONE_MODULES = 4;
-const DEFAULT_OUTPUT_SIZE = 740;
-const MAX_OUTPUT_SIZE = 1200;
+const OUTPUT_SIZE = 270;
+const MAX_OUTPUT_SIZE = 960;
 const ART_SRC = "assets/pixel_tommy01.png";
 
 const state = {
@@ -11,8 +11,6 @@ const state = {
 
 const els = {
   url: document.querySelector("#urlInput"),
-  size: document.querySelector("#sizeInput"),
-  sizeOutput: document.querySelector("#sizeOutput"),
   download: document.querySelector("#downloadButton"),
   canvas: document.querySelector("#qrCanvas"),
   source: document.querySelector("#qrSource"),
@@ -58,14 +56,12 @@ function getQrModel(text) {
 
 function getCanvasSize(moduleCount, requestedSize) {
   const totalModules = moduleCount + QUIET_ZONE_MODULES * 2;
-  const minScale = Math.ceil((CENTER_ART_SIZE + 96) / totalModules);
-  const baseScale = Math.ceil(requestedSize / totalModules);
-  const scale = Math.max(minScale, baseScale, 1);
-  const size = Math.min(totalModules * scale, MAX_OUTPUT_SIZE);
+  const size = Math.min(requestedSize, MAX_OUTPUT_SIZE);
+  const scale = size / totalModules;
 
   return {
-    scale: Math.floor(size / totalModules),
-    size: Math.floor(size / totalModules) * totalModules,
+    scale,
+    size,
     totalModules,
   };
 }
@@ -111,8 +107,6 @@ function drawCenterArt(size) {
 
 function render() {
   const text = els.url.value.trim();
-  const requestedSize = Number(els.size.value) || DEFAULT_OUTPUT_SIZE;
-  els.sizeOutput.value = String(requestedSize);
 
   if (!text) {
     ctx.clearRect(0, 0, els.canvas.width, els.canvas.height);
@@ -124,13 +118,13 @@ function render() {
 
   try {
     const qrModel = getQrModel(text);
-    const { scale, size } = getCanvasSize(qrModel.moduleCount, requestedSize);
+    const { scale, size } = getCanvasSize(qrModel.moduleCount, OUTPUT_SIZE);
 
     els.canvas.width = size;
     els.canvas.height = size;
     drawQrModules(qrModel, scale, size);
     drawCenterArt(size);
-    setStatus(`指定 ${requestedSize}px / 出力 ${size}x${size}px / QR 1マス ${scale}px / 中央画像 ${CENTER_ART_SIZE}x${CENTER_ART_SIZE}px`);
+    setStatus(`出力 ${size}x${size}px / QR 1マス ${scale.toFixed(2)}px / 中央画像 ${CENTER_ART_SIZE}x${CENTER_ART_SIZE}px`);
   } catch (error) {
     setStatus(error.message);
   }
@@ -165,6 +159,5 @@ state.centerArt.onerror = () => {
 state.centerArt.src = ART_SRC;
 
 els.url.addEventListener("input", debounce(render));
-els.size.addEventListener("input", render);
 els.download.addEventListener("click", downloadPng);
 window.addEventListener("load", render);
