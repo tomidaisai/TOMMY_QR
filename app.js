@@ -2,7 +2,7 @@ const CENTER_ART_SIZE = 96;
 const QUIET_ZONE_MODULES = 4;
 const MIN_OUTPUT_SIZE = 740;
 const MAX_OUTPUT_SIZE = 960;
-const ART_SRC = "assets/center-art.png";
+const ART_SRC = "assets/pixel_tommy01.png";
 
 const state = {
   centerArt: new Image(),
