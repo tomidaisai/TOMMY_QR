@@ -18,6 +18,11 @@
             <input id="urlInput" type="url" value="https://example.com" placeholder="https://example.com" autocomplete="url">
           </label>
 
+          <label class="field">
+            <span>QRの細かさ <output id="sizeOutput">740</output>px</span>
+            <input id="sizeInput" type="range" min="360" max="1200" step="10" value="740">
+          </label>
+
           <div class="actions">
             <button id="downloadButton" type="button">PNG保存</button>
           </div>

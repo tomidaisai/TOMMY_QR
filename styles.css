@@ -91,6 +91,16 @@ h1 {
   padding: 10px 12px;
 }
 
+.field input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+output {
+  color: var(--ink);
+  font-weight: 800;
+}
+
 .actions {
   display: flex;
 }
