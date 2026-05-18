@@ -155,7 +155,7 @@ state.centerArt.onload = () => {
 
 state.centerArt.onerror = () => {
   state.artReady = false;
-  setStatus("中央画像を読み込めませんでした。assets/center-art.png を確認してください。");
+  setStatus("中央画像を読み込めませんでした。assets/pixel_tommy01.png を確認してください。");
 };
 
 state.centerArt.src = ART_SRC;
