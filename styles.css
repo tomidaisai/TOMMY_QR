@@ -168,7 +168,7 @@ button:hover {
 }
 
 #qrCanvas {
-  width: min(100%, 512px);
+  width: min(100%, 768px);
   aspect-ratio: 1;
   height: auto;
   border-radius: 8px;
