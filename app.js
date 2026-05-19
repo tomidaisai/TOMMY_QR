@@ -2,7 +2,7 @@ const CENTER_ART_MAX_SIZE = 460;
 const QUIET_ZONE_MODULES = 4;
 const QR_MODULE_SIZE = 24;
 const MAX_OUTPUT_SIZE = 1280;
-const ART_SRC = "assets/tommy04.jpg";
+const ART_SRC = "assets/tommy04_monochrome.png";
 
 const state = {
   centerArt: new Image(),
