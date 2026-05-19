@@ -3,6 +3,7 @@ const QUIET_ZONE_MODULES = 4;
 const QR_MODULE_SIZE = 24;
 const MAX_OUTPUT_SIZE = 1280;
 const ART_SRC = "assets/tommy04_monochrome.png";
+const QR_DARK_COLOR = "#000000";
 
 const state = {
   centerArt: new Image(),
@@ -90,7 +91,7 @@ function getQrModel(text) {
     text,
     width: 1,
     height: 1,
-    colorDark: "#111827",
+    colorDark: QR_DARK_COLOR,
     colorLight: "#ffffff",
     correctLevel: QRCode.CorrectLevel.H,
   });
@@ -126,7 +127,7 @@ function fillModule(x, y, scale) {
 function drawQrModules(qrModel, scale, size) {
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, size, size);
-  ctx.fillStyle = "#111827";
+  ctx.fillStyle = QR_DARK_COLOR;
 
   for (let row = 0; row < qrModel.moduleCount; row += 1) {
     for (let col = 0; col < qrModel.moduleCount; col += 1) {
@@ -211,7 +212,7 @@ state.centerArt.onload = () => {
 
 state.centerArt.onerror = () => {
   state.artReady = false;
-  setStatus("中央画像を読み込めませんでした。assets/tommy04.jpg を確認してください。");
+  setStatus("中央画像を読み込めませんでした。assets/tommy04_monochrome.png を確認してください。");
 };
 
 state.centerArt.src = ART_SRC;
