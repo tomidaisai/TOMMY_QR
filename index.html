@@ -11,12 +11,44 @@
       <section class="workspace" aria-label="QRコード生成">
         <div class="panel controls-panel">
           <p class="eyebrow">TOMMY QR</p>
-          
 
-          <label class="field">
+          <div class="mode-tabs" role="tablist" aria-label="QRコードの種類">
+            <button id="urlModeButton" type="button" class="mode-button active" aria-pressed="true">URL</button>
+            <button id="wifiModeButton" type="button" class="mode-button" aria-pressed="false">Wi-Fi</button>
+          </div>
+
+          <div id="urlFields">
+            <label class="field">
             <span>URL</span>
             <input id="urlInput" type="url" value="https://example.com" placeholder="https://example.com" autocomplete="url">
-          </label>
+            </label>
+          </div>
+
+          <div id="wifiFields" class="hidden">
+            <label class="field">
+              <span>SSID</span>
+              <input id="ssidInput" type="text" placeholder="Wi-Fi名" autocomplete="off">
+            </label>
+
+            <label class="field">
+              <span>パスワード</span>
+              <input id="passwordInput" type="text" placeholder="パスワード" autocomplete="off">
+            </label>
+
+            <label class="field">
+              <span>暗号化方式</span>
+              <select id="securityInput">
+                <option value="WPA" selected>WPA/WPA2</option>
+                <option value="WEP">WEP</option>
+                <option value="nopass">なし</option>
+              </select>
+            </label>
+
+            <label class="check">
+              <input id="hiddenInput" type="checkbox">
+              <span>非公開ネットワーク</span>
+            </label>
+          </div>
 
           <div class="actions">
             <button id="downloadButton" type="button">PNG保存</button>

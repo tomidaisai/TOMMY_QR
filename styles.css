@@ -27,7 +27,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -81,7 +82,9 @@ h1 {
   font-weight: 700;
 }
 
-.field input[type="url"] {
+.field input[type="url"],
+.field input[type="text"],
+.field select {
   width: 100%;
   min-height: 46px;
   border: 1px solid var(--line);
@@ -89,6 +92,50 @@ h1 {
   background: #fff;
   color: var(--ink);
   padding: 10px 12px;
+}
+
+.mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #eef3f8;
+}
+
+.mode-button {
+  min-height: 38px;
+  background: transparent;
+  color: var(--muted);
+}
+
+.mode-button:hover,
+.mode-button.active {
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 4px 14px rgba(24, 38, 62, 0.1);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 18px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.hidden {
+  display: none;
 }
 
 .actions {

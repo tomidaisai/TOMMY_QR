@@ -7,10 +7,19 @@ const ART_SRC = "assets/eo27AP_H_400x400.jpg";
 const state = {
   centerArt: new Image(),
   artReady: false,
+  mode: "url",
 };
 
 const els = {
+  urlMode: document.querySelector("#urlModeButton"),
+  wifiMode: document.querySelector("#wifiModeButton"),
+  urlFields: document.querySelector("#urlFields"),
+  wifiFields: document.querySelector("#wifiFields"),
   url: document.querySelector("#urlInput"),
+  ssid: document.querySelector("#ssidInput"),
+  password: document.querySelector("#passwordInput"),
+  security: document.querySelector("#securityInput"),
+  hidden: document.querySelector("#hiddenInput"),
   download: document.querySelector("#downloadButton"),
   canvas: document.querySelector("#qrCanvas"),
   source: document.querySelector("#qrSource"),
@@ -29,6 +38,45 @@ function debounce(fn, delay = 120) {
 
 function setStatus(message) {
   els.status.textContent = message;
+}
+
+function escapeWifiValue(value) {
+  return value.replace(/([\\;,":])/g, "\\$1");
+}
+
+function getQrText() {
+  if (state.mode === "url") {
+    return {
+      text: els.url.value.trim(),
+      emptyMessage: "URLを入力してください。",
+      saveMessage: "URLを入力してから保存してください。",
+    };
+  }
+
+  const ssid = els.ssid.value.trim();
+  const security = els.security.value;
+  const password = els.password.value;
+  const hidden = els.hidden.checked ? "true" : "false";
+  const passwordPart = security === "nopass" ? "" : `P:${escapeWifiValue(password)};`;
+
+  return {
+    text: ssid ? `WIFI:T:${security};S:${escapeWifiValue(ssid)};${passwordPart}H:${hidden};;` : "",
+    emptyMessage: "SSIDを入力してください。",
+    saveMessage: "SSIDを入力してから保存してください。",
+  };
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  const isWifi = mode === "wifi";
+
+  els.urlFields.classList.toggle("hidden", isWifi);
+  els.wifiFields.classList.toggle("hidden", !isWifi);
+  els.urlMode.classList.toggle("active", !isWifi);
+  els.wifiMode.classList.toggle("active", isWifi);
+  els.urlMode.setAttribute("aria-pressed", String(!isWifi));
+  els.wifiMode.setAttribute("aria-pressed", String(isWifi));
+  render();
 }
 
 function getQrModel(text) {
@@ -106,18 +154,18 @@ function drawCenterArt(size) {
 }
 
 function render() {
-  const text = els.url.value.trim();
+  const qrInput = getQrText();
 
-  if (!text) {
+  if (!qrInput.text) {
     ctx.clearRect(0, 0, els.canvas.width, els.canvas.height);
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, els.canvas.width, els.canvas.height);
-    setStatus("URLを入力してください。");
+    setStatus(qrInput.emptyMessage);
     return;
   }
 
   try {
-    const qrModel = getQrModel(text);
+    const qrModel = getQrModel(qrInput.text);
     const { scale, size } = getCanvasSize(qrModel.moduleCount, OUTPUT_SIZE);
 
     els.canvas.width = size;
@@ -131,10 +179,10 @@ function render() {
 }
 
 function downloadPng() {
-  const text = els.url.value.trim();
+  const qrInput = getQrText();
 
-  if (!text) {
-    setStatus("URLを入力してから保存してください。");
+  if (!qrInput.text) {
+    setStatus(qrInput.saveMessage);
     return;
   }
 
@@ -159,5 +207,11 @@ state.centerArt.onerror = () => {
 state.centerArt.src = ART_SRC;
 
 els.url.addEventListener("input", debounce(render));
+[els.ssid, els.password, els.security, els.hidden].forEach((el) => {
+  el.addEventListener("input", debounce(render));
+  el.addEventListener("change", render);
+});
+els.urlMode.addEventListener("click", () => setMode("url"));
+els.wifiMode.addEventListener("click", () => setMode("wifi"));
 els.download.addEventListener("click", downloadPng);
 window.addEventListener("load", render);
