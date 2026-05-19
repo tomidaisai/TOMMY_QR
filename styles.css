@@ -40,7 +40,7 @@ select {
 }
 
 .workspace {
-  width: min(1020px, 100%);
+  width: min(1220px, 100%);
   display: grid;
   grid-template-columns: minmax(300px, 380px) minmax(360px, 1fr);
   gap: 28px;
@@ -168,7 +168,7 @@ button:hover {
 }
 
 #qrCanvas {
-  width: min(100%, 768px);
+  width: min(100%, 760px);
   aspect-ratio: 1;
   height: auto;
   border-radius: 8px;

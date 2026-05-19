@@ -1,8 +1,8 @@
-const CENTER_ART_SIZE = 256;
+const CENTER_ART_SIZE = 420;
 const QUIET_ZONE_MODULES = 4;
-const OUTPUT_SIZE = 768;
-const MAX_OUTPUT_SIZE = 960;
-const ART_SRC = "assets/pixel_tommy01.png";
+const OUTPUT_SIZE = 1024;
+const MAX_OUTPUT_SIZE = 1280;
+const ART_SRC = "assets/tommy-center-art.png";
 
 const state = {
   centerArt: new Image(),
@@ -201,7 +201,7 @@ state.centerArt.onload = () => {
 
 state.centerArt.onerror = () => {
   state.artReady = false;
-  setStatus("中央画像を読み込めませんでした。assets/pixel_tommy01.png を確認してください。");
+  setStatus("中央画像を読み込めませんでした。assets/tommy-center-art.png を確認してください。");
 };
 
 state.centerArt.src = ART_SRC;
