@@ -2,7 +2,7 @@ const CENTER_ART_MAX_SIZE = 460;
 const QUIET_ZONE_MODULES = 4;
 const QR_MODULE_SIZE = 24;
 const MAX_OUTPUT_SIZE = 1280;
-const ART_SRC = "assets/tommy02.png";
+const ART_SRC = "assets/tommy03.png";
 
 const state = {
   centerArt: new Image(),
@@ -211,7 +211,7 @@ state.centerArt.onload = () => {
 
 state.centerArt.onerror = () => {
   state.artReady = false;
-  setStatus("中央画像を読み込めませんでした。assets/tommy02.png を確認してください。");
+  setStatus("中央画像を読み込めませんでした。assets/tommy03.png を確認してください。");
 };
 
 state.centerArt.src = ART_SRC;
