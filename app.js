@@ -1,6 +1,6 @@
-const CENTER_ART_SIZE = 420;
+const CENTER_ART_MAX_SIZE = 460;
 const QUIET_ZONE_MODULES = 4;
-const OUTPUT_SIZE = 1024;
+const QR_MODULE_SIZE = 24;
 const MAX_OUTPUT_SIZE = 1280;
 const ART_SRC = "assets/tommy-center-art.png";
 
@@ -102,10 +102,10 @@ function getQrModel(text) {
   return qr._oQRCode;
 }
 
-function getCanvasSize(moduleCount, requestedSize) {
+function getCanvasSize(moduleCount) {
   const totalModules = moduleCount + QUIET_ZONE_MODULES * 2;
-  const size = Math.min(requestedSize, MAX_OUTPUT_SIZE);
-  const scale = size / totalModules;
+  const scale = Math.max(1, Math.floor(Math.min(QR_MODULE_SIZE, MAX_OUTPUT_SIZE / totalModules)));
+  const size = totalModules * scale;
 
   return {
     scale,
@@ -142,15 +142,24 @@ function drawCenterArt(size) {
     return;
   }
 
-  const x = Math.floor((size - CENTER_ART_SIZE) / 2);
-  const y = Math.floor((size - CENTER_ART_SIZE) / 2);
-  const crop = Math.min(state.centerArt.naturalWidth, state.centerArt.naturalHeight);
-  const sx = Math.floor((state.centerArt.naturalWidth - crop) / 2);
-  const sy = Math.floor((state.centerArt.naturalHeight - crop) / 2);
+  const ratio = Math.min(
+    CENTER_ART_MAX_SIZE / state.centerArt.naturalWidth,
+    CENTER_ART_MAX_SIZE / state.centerArt.naturalHeight,
+    1,
+  );
+  const artWidth = Math.round(state.centerArt.naturalWidth * ratio);
+  const artHeight = Math.round(state.centerArt.naturalHeight * ratio);
+  const x = Math.floor((size - artWidth) / 2);
+  const y = Math.floor((size - artHeight) / 2);
 
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(state.centerArt, sx, sy, crop, crop, x, y, CENTER_ART_SIZE, CENTER_ART_SIZE);
+  ctx.drawImage(state.centerArt, x, y, artWidth, artHeight);
+
+  return {
+    width: artWidth,
+    height: artHeight,
+  };
 }
 
 function render() {
@@ -166,13 +175,14 @@ function render() {
 
   try {
     const qrModel = getQrModel(qrInput.text);
-    const { scale, size } = getCanvasSize(qrModel.moduleCount, OUTPUT_SIZE);
+    const { scale, size } = getCanvasSize(qrModel.moduleCount);
 
     els.canvas.width = size;
     els.canvas.height = size;
     drawQrModules(qrModel, scale, size);
-    drawCenterArt(size);
-    setStatus(`出力 ${size}x${size}px / QR 1マス ${scale.toFixed(2)}px / 中央画像 ${CENTER_ART_SIZE}x${CENTER_ART_SIZE}px`);
+    const artSize = drawCenterArt(size);
+    const artStatus = artSize ? `${artSize.width}x${artSize.height}px` : "読み込み中";
+    setStatus(`出力 ${size}x${size}px / QR 1マス ${scale}px / 中央画像 ${artStatus}`);
   } catch (error) {
     setStatus(error.message);
   }
