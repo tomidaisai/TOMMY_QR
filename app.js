@@ -1,6 +1,6 @@
 const CENTER_ART_MAX_SIZE = 240;
 const QUIET_ZONE_MODULES = 4;
-const QR_MODULE_SIZE = 8;
+const QR_MODULE_SIZE = 16;
 const MAX_OUTPUT_SIZE = 1280;
 const ART_SRC = "assets/tommy04_monochrome.png";
 const QR_DARK_COLOR = "#000000";
