@@ -2,25 +2,31 @@ const CENTER_ART_MAX_SIZE = 240;
 const QUIET_ZONE_MODULES = 4;
 const QR_MODULE_SIZE = 16;
 const MAX_OUTPUT_SIZE = 1280;
-const ART_SRC = "assets/tommy04_monochrome.png";
 const QR_DARK_COLOR = "#000000";
+const QR_ERROR_CORRECTION_LEVEL = "H";
+const CENTER_ART_PATTERNS = [
+  { id: "pattern1", label: "パターン1", src: "assets/tommy04_monochrome.png" },
+  // 画像を追加するときは、ここにsrcを設定してHTML側のdisabledを外す。
+  { id: "pattern2", label: "パターン2", src: null },
+  { id: "pattern3", label: "パターン3", src: null },
+  { id: "pattern4", label: "パターン4", src: null },
+];
 
 const state = {
   centerArt: new Image(),
   artReady: false,
+  artPatternId: CENTER_ART_PATTERNS[0].id,
   mode: "url",
 };
 
 const els = {
   urlMode: document.querySelector("#urlModeButton"),
-  wifiMode: document.querySelector("#wifiModeButton"),
+  textMode: document.querySelector("#textModeButton"),
   urlFields: document.querySelector("#urlFields"),
-  wifiFields: document.querySelector("#wifiFields"),
+  textFields: document.querySelector("#textFields"),
   url: document.querySelector("#urlInput"),
-  ssid: document.querySelector("#ssidInput"),
-  password: document.querySelector("#passwordInput"),
-  security: document.querySelector("#securityInput"),
-  hidden: document.querySelector("#hiddenInput"),
+  text: document.querySelector("#textInput"),
+  artPattern: document.querySelector("#artPatternInput"),
   download: document.querySelector("#downloadButton"),
   canvas: document.querySelector("#qrCanvas"),
   source: document.querySelector("#qrSource"),
@@ -41,8 +47,27 @@ function setStatus(message) {
   els.status.textContent = message;
 }
 
-function escapeWifiValue(value) {
-  return value.replace(/([\\;,":])/g, "\\$1");
+function getArtPattern() {
+  return CENTER_ART_PATTERNS.find(({ id }) => id === state.artPatternId) ?? CENTER_ART_PATTERNS[0];
+}
+
+function setArtPattern(patternId) {
+  const pattern = CENTER_ART_PATTERNS.find(({ id }) => id === patternId);
+
+  if (!pattern) {
+    return;
+  }
+
+  state.artPatternId = pattern.id;
+  state.artReady = false;
+
+  if (!pattern.src) {
+    render();
+    setStatus(`${pattern.label}の画像はまだ登録されていません。`);
+    return;
+  }
+
+  state.centerArt.src = pattern.src;
 }
 
 function getQrText() {
@@ -54,53 +79,59 @@ function getQrText() {
     };
   }
 
-  const ssid = els.ssid.value.trim();
-  const security = els.security.value;
-  const password = els.password.value;
-  const hidden = els.hidden.checked ? "true" : "false";
-  const passwordPart = security === "nopass" ? "" : `P:${escapeWifiValue(password)};`;
-
   return {
-    text: ssid ? `WIFI:T:${security};S:${escapeWifiValue(ssid)};${passwordPart}H:${hidden};;` : "",
-    emptyMessage: "SSIDを入力してください。",
-    saveMessage: "SSIDを入力してから保存してください。",
+    text: els.text.value,
+    emptyMessage: "文字列を入力してください。",
+    saveMessage: "文字列を入力してから保存してください。",
   };
 }
 
 function setMode(mode) {
   state.mode = mode;
-  const isWifi = mode === "wifi";
+  const isText = mode === "text";
 
-  els.urlFields.classList.toggle("hidden", isWifi);
-  els.wifiFields.classList.toggle("hidden", !isWifi);
-  els.urlMode.classList.toggle("active", !isWifi);
-  els.wifiMode.classList.toggle("active", isWifi);
-  els.urlMode.setAttribute("aria-pressed", String(!isWifi));
-  els.wifiMode.setAttribute("aria-pressed", String(isWifi));
+  els.urlFields.classList.toggle("hidden", isText);
+  els.textFields.classList.toggle("hidden", !isText);
+  els.urlMode.classList.toggle("active", !isText);
+  els.textMode.classList.toggle("active", isText);
+  els.urlMode.setAttribute("aria-pressed", String(!isText));
+  els.textMode.setAttribute("aria-pressed", String(isText));
   render();
 }
 
 function getQrModel(text) {
-  els.source.innerHTML = "";
-
   if (!window.QRCode) {
     throw new Error("QRコードライブラリを読み込めませんでした。ネットワーク接続を確認してください。");
   }
 
-  const qr = new QRCode(els.source, {
-    text,
-    width: 1,
-    height: 1,
-    colorDark: QR_DARK_COLOR,
-    colorLight: "#ffffff",
-    correctLevel: QRCode.CorrectLevel.H,
-  });
+  for (let typeNumber = 1; typeNumber <= 40; typeNumber += 1) {
+    els.source.innerHTML = "";
 
-  if (!qr._oQRCode) {
-    throw new Error("QRコードのデータ取得に失敗しました。");
+    try {
+      const qr = new QRCode(els.source, {
+        text,
+        typeNumber,
+        width: 1,
+        height: 1,
+        colorDark: QR_DARK_COLOR,
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel[QR_ERROR_CORRECTION_LEVEL],
+      });
+
+      if (!qr._oQRCode) {
+        throw new Error("QRコードのデータ取得に失敗しました。");
+      }
+
+      return qr._oQRCode;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (!message.startsWith("code length overflow")) {
+        throw error;
+      }
+    }
   }
 
-  return qr._oQRCode;
+  throw new Error("文字列が長すぎます。短くしてからもう一度お試しください。");
 }
 
 function getCanvasSize(moduleCount) {
@@ -182,7 +213,7 @@ function render() {
     els.canvas.height = size;
     drawQrModules(qrModel, scale, size);
     const artSize = drawCenterArt(size);
-    const artStatus = artSize ? `${artSize.width}x${artSize.height}px` : "読み込み中";
+    const artStatus = artSize ? `${getArtPattern().label} ${artSize.width}x${artSize.height}px` : "読み込み中";
     setStatus(`出力 ${size}x${size}px / QR 1マス ${scale}px / 中央画像 ${artStatus}`);
   } catch (error) {
     setStatus(error.message);
@@ -212,17 +243,15 @@ state.centerArt.onload = () => {
 
 state.centerArt.onerror = () => {
   state.artReady = false;
-  setStatus("中央画像を読み込めませんでした。assets/tommy04_monochrome.png を確認してください。");
+  setStatus(`${getArtPattern().label}の中央画像を読み込めませんでした。`);
 };
 
-state.centerArt.src = ART_SRC;
+state.centerArt.src = getArtPattern().src;
 
 els.url.addEventListener("input", debounce(render));
-[els.ssid, els.password, els.security, els.hidden].forEach((el) => {
-  el.addEventListener("input", debounce(render));
-  el.addEventListener("change", render);
-});
+els.text.addEventListener("input", debounce(render));
+els.artPattern.addEventListener("change", (event) => setArtPattern(event.target.value));
 els.urlMode.addEventListener("click", () => setMode("url"));
-els.wifiMode.addEventListener("click", () => setMode("wifi"));
+els.textMode.addEventListener("click", () => setMode("text"));
 els.download.addEventListener("click", downloadPng);
 window.addEventListener("load", render);

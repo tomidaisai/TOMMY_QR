@@ -13,8 +13,8 @@
           <p class="eyebrow">TOMMY QR</p>
 
           <div class="mode-tabs" role="tablist" aria-label="QRコードの種類">
-            <button id="urlModeButton" type="button" class="mode-button active" aria-pressed="true">URL</button>
-            <button id="wifiModeButton" type="button" class="mode-button" aria-pressed="false">Wi-Fi</button>
+            <button id="urlModeButton" type="button" class="mode-button active" aria-pressed="true">URLそのまま</button>
+            <button id="textModeButton" type="button" class="mode-button" aria-pressed="false">文字列埋め込み</button>
           </div>
 
           <div id="urlFields">
@@ -24,31 +24,22 @@
             </label>
           </div>
 
-          <div id="wifiFields" class="hidden">
+          <div id="textFields" class="hidden">
             <label class="field">
-              <span>SSID</span>
-              <input id="ssidInput" type="text" placeholder="Wi-Fi名" autocomplete="off">
-            </label>
-
-            <label class="field">
-              <span>パスワード</span>
-              <input id="passwordInput" type="text" placeholder="パスワード" autocomplete="off">
-            </label>
-
-            <label class="field">
-              <span>暗号化方式</span>
-              <select id="securityInput">
-                <option value="WPA" selected>WPA/WPA2</option>
-                <option value="WEP">WEP</option>
-                <option value="nopass">なし</option>
-              </select>
-            </label>
-
-            <label class="check">
-              <input id="hiddenInput" type="checkbox">
-              <span>非公開ネットワーク</span>
+              <span>埋め込む文字列</span>
+              <textarea id="textInput" rows="6" placeholder="QRコードに埋め込む文字列" autocomplete="off"></textarea>
             </label>
           </div>
+
+          <label class="field">
+            <span>中央画像</span>
+            <select id="artPatternInput">
+              <option value="pattern1">パターン1</option>
+              <option value="pattern2" disabled>パターン2（画像未登録）</option>
+              <option value="pattern3" disabled>パターン3（画像未登録）</option>
+              <option value="pattern4" disabled>パターン4（画像未登録）</option>
+            </select>
+          </label>
 
           <div class="actions">
             <button id="downloadButton" type="button">PNG保存</button>

@@ -28,7 +28,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -84,7 +85,8 @@ h1 {
 
 .field input[type="url"],
 .field input[type="text"],
-.field select {
+.field select,
+.field textarea {
   width: 100%;
   min-height: 46px;
   border: 1px solid var(--line);
@@ -92,6 +94,11 @@ h1 {
   background: #fff;
   color: var(--ink);
   padding: 10px 12px;
+}
+
+.field textarea {
+  min-height: 132px;
+  resize: vertical;
 }
 
 .mode-tabs {
