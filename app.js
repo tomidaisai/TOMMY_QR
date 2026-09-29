@@ -7,7 +7,7 @@ const QR_ERROR_CORRECTION_LEVEL = "H";
 const CENTER_ART_PATTERNS = [
   { id: "pattern1", label: "パターン1", src: "assets/tommy04_monochrome.png" },
   // 画像を追加するときは、ここにsrcを設定してHTML側のdisabledを外す。
-  { id: "pattern2", label: "パターン2", src: "assets/pixil-frame-0 (2).png" },
+  { id: "pattern2", label: "パターン2", src: "assets/pixil-frame-0 (3).png" },
   { id: "pattern3", label: "パターン3", src: null },
   { id: "pattern4", label: "パターン4", src: null },
 ];
