@@ -101,6 +101,18 @@ h1 {
   resize: vertical;
 }
 
+.art-size-field input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.art-size-field output {
+  color: var(--ink);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
 .mode-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;

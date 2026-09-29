@@ -1,4 +1,4 @@
-const CENTER_ART_MAX_SIZE = 240;
+const CENTER_ART_DEFAULT_SIZE = 240;
 const QUIET_ZONE_MODULES = 4;
 const QR_MODULE_SIZE = 16;
 const MAX_OUTPUT_SIZE = 1280;
@@ -16,6 +16,7 @@ const state = {
   centerArt: new Image(),
   artReady: false,
   artPatternId: CENTER_ART_PATTERNS[0].id,
+  centerArtSize: CENTER_ART_DEFAULT_SIZE,
   mode: "url",
 };
 
@@ -27,6 +28,8 @@ const els = {
   url: document.querySelector("#urlInput"),
   text: document.querySelector("#textInput"),
   artPattern: document.querySelector("#artPatternInput"),
+  artSize: document.querySelector("#artSizeInput"),
+  artSizeValue: document.querySelector("#artSizeValue"),
   download: document.querySelector("#downloadButton"),
   canvas: document.querySelector("#qrCanvas"),
   source: document.querySelector("#qrSource"),
@@ -175,9 +178,8 @@ function drawCenterArt(size) {
   }
 
   const ratio = Math.min(
-    CENTER_ART_MAX_SIZE / state.centerArt.naturalWidth,
-    CENTER_ART_MAX_SIZE / state.centerArt.naturalHeight,
-    1,
+    state.centerArtSize / state.centerArt.naturalWidth,
+    state.centerArtSize / state.centerArt.naturalHeight,
   );
   const artWidth = Math.round(state.centerArt.naturalWidth * ratio);
   const artHeight = Math.round(state.centerArt.naturalHeight * ratio);
@@ -251,6 +253,12 @@ state.centerArt.src = getArtPattern().src;
 els.url.addEventListener("input", debounce(render));
 els.text.addEventListener("input", debounce(render));
 els.artPattern.addEventListener("change", (event) => setArtPattern(event.target.value));
+els.artSize.addEventListener("input", (event) => {
+  state.centerArtSize = Number(event.target.value);
+  els.artSizeValue.value = `${state.centerArtSize}px`;
+  els.artSizeValue.textContent = `${state.centerArtSize}px`;
+  render();
+});
 els.urlMode.addEventListener("click", () => setMode("url"));
 els.textMode.addEventListener("click", () => setMode("text"));
 els.download.addEventListener("click", downloadPng);

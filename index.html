@@ -41,6 +41,12 @@
             </select>
           </label>
 
+          <label class="field art-size-field" for="artSizeInput">
+            <span>中央画像の大きさ</span>
+            <input id="artSizeInput" type="range" min="80" max="320" step="10" value="240" aria-describedby="artSizeValue">
+            <output id="artSizeValue" for="artSizeInput">240px</output>
+          </label>
+
           <div class="actions">
             <button id="downloadButton" type="button">PNG保存</button>
           </div>
@@ -55,6 +61,6 @@
 
     <div id="qrSource" hidden></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="app.js?v=20260930-pattern2"></script>
+    <script src="app.js?v=20260930-art-size-slider"></script>
   </body>
 </html>
