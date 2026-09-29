@@ -17,6 +17,8 @@ const state = {
   artReady: false,
   artPatternId: CENTER_ART_PATTERNS[0].id,
   centerArtSize: CENTER_ART_DEFAULT_SIZE,
+  qrText: null,
+  qrModel: null,
   mode: "url",
 };
 
@@ -34,6 +36,7 @@ const els = {
   canvas: document.querySelector("#qrCanvas"),
   source: document.querySelector("#qrSource"),
   status: document.querySelector("#statusText"),
+  decodeStatus: document.querySelector("#decodeStatus"),
 };
 
 const ctx = els.canvas.getContext("2d");
@@ -137,6 +140,15 @@ function getQrModel(text) {
   throw new Error("文字列が長すぎます。短くしてからもう一度お試しください。");
 }
 
+function getCachedQrModel(text) {
+  if (state.qrText !== text || !state.qrModel) {
+    state.qrModel = getQrModel(text);
+    state.qrText = text;
+  }
+
+  return state.qrModel;
+}
+
 function getCanvasSize(moduleCount) {
   const totalModules = moduleCount + QUIET_ZONE_MODULES * 2;
   const scale = Math.max(1, Math.floor(Math.min(QR_MODULE_SIZE, MAX_OUTPUT_SIZE / totalModules)));
@@ -196,6 +208,23 @@ function drawCenterArt(size) {
   };
 }
 
+function verifyQrCanvas(expectedText) {
+  if (!window.jsQR) {
+    els.decodeStatus.textContent = "QR読み取り失敗";
+    return;
+  }
+
+  try {
+    const imageData = ctx.getImageData(0, 0, els.canvas.width, els.canvas.height);
+    const decoded = window.jsQR(imageData.data, imageData.width, imageData.height, {
+      inversionAttempts: "dontInvert",
+    });
+    els.decodeStatus.textContent = decoded?.data === expectedText ? "QR読み取り成功" : "QR読み取り失敗";
+  } catch {
+    els.decodeStatus.textContent = "QR読み取り失敗";
+  }
+}
+
 function render() {
   const qrInput = getQrText();
 
@@ -203,21 +232,24 @@ function render() {
     ctx.clearRect(0, 0, els.canvas.width, els.canvas.height);
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, els.canvas.width, els.canvas.height);
+    els.decodeStatus.textContent = "QR読み取り失敗";
     setStatus(qrInput.emptyMessage);
     return;
   }
 
   try {
-    const qrModel = getQrModel(qrInput.text);
+    const qrModel = getCachedQrModel(qrInput.text);
     const { scale, size } = getCanvasSize(qrModel.moduleCount);
 
     els.canvas.width = size;
     els.canvas.height = size;
     drawQrModules(qrModel, scale, size);
     const artSize = drawCenterArt(size);
+    verifyQrCanvas(qrInput.text);
     const artStatus = artSize ? `${getArtPattern().label} ${artSize.width}x${artSize.height}px` : "読み込み中";
     setStatus(`出力 ${size}x${size}px / QR 1マス ${scale}px / 中央画像 ${artStatus}`);
   } catch (error) {
+    els.decodeStatus.textContent = "QR読み取り失敗";
     setStatus(error.message);
   }
 }

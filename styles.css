@@ -203,6 +203,15 @@ button:hover {
   text-align: center;
 }
 
+#decodeStatus {
+  min-height: 22px;
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+
 @media (max-width: 820px) {
   .app-shell {
     padding: 18px;

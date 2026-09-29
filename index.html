@@ -55,12 +55,14 @@
         <div class="preview-wrap">
           <canvas id="qrCanvas" width="1080" height="1080" aria-label="生成されたQRコード"></canvas>
           <p id="statusText" role="status">URLを入力すると自動で更新されます。</p>
+          <p id="decodeStatus" role="status" aria-live="polite">QR読み取り失敗</p>
         </div>
       </section>
     </main>
 
     <div id="qrSource" hidden></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="app.js?v=20260930-art-size-slider"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="app.js?v=20260930-canvas-decode-validation"></script>
   </body>
 </html>
