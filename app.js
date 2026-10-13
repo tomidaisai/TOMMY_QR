@@ -32,6 +32,7 @@ const els = {
   artPattern: document.querySelector("#artPatternInput"),
   artSize: document.querySelector("#artSizeInput"),
   artSizeValue: document.querySelector("#artSizeValue"),
+  filename: document.querySelector("#filenameInput"),
   download: document.querySelector("#downloadButton"),
   canvas: document.querySelector("#qrCanvas"),
   source: document.querySelector("#qrSource"),
@@ -254,6 +255,24 @@ function render() {
   }
 }
 
+function getDownloadFilename() {
+  let name = els.filename.value.trim()
+    .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "_")
+    .replace(/\.png$/i, "")
+    .replace(/[. ]+$/g, "");
+
+  if (!name) {
+    name = "tommy-qr";
+  }
+
+  // Windowsでも保存できるように予約済みのファイル名を避ける。
+  if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(name)) {
+    name = `_${name}`;
+  }
+
+  return `${name}.png`;
+}
+
 function downloadPng() {
   const qrInput = getQrText();
 
@@ -265,7 +284,7 @@ function downloadPng() {
   render();
 
   const link = document.createElement("a");
-  link.download = "tommy-qr.png";
+  link.download = getDownloadFilename();
   link.href = els.canvas.toDataURL("image/png");
   link.click();
 }

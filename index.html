@@ -47,6 +47,12 @@
             <output id="artSizeValue" for="artSizeInput">240px</output>
           </label>
 
+          <label class="field">
+            <span>ファイル名</span>
+            <input id="filenameInput" type="text" value="tommy-qr" placeholder="tommy-qr" maxlength="120" autocomplete="off" aria-describedby="filenameHelp">
+            <small id="filenameHelp">拡張子 .png は自動で付きます。空欄の場合は tommy-qr.png で保存します。</small>
+          </label>
+
           <div class="actions">
             <button id="downloadButton" type="button">PNG保存</button>
           </div>
@@ -63,6 +69,6 @@
     <div id="qrSource" hidden></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-    <script src="app.js?v=20260930-canvas-decode-validation"></script>
+    <script src="app.js?v=20261013-custom-filename"></script>
   </body>
 </html>
